@@ -1,85 +1,80 @@
-
-# This workflow will build, test, sign and package a WPF or Windows Forms desktop application
-# built on .NET Core.
-
-name: Test-Correct-Continuous-Integration
+name: WPF Release
 
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  # Do you really want to be doing signed builds with code signing on every pull request to master?
+  # This will also fail if you are not the one who open the PR (pull request bulds do not have access to $secrets )
+  #pull_request:
+  #  branches: [ master ]
 
 jobs:
-
   build:
-
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        configuration:
+        - Debug
+        - Release
 
     runs-on: windows-latest  
 
-    env:
-      #App_Packages_Directory: AppPackages
-      #SigningCertificate: GitHubActionsDemo.pfx
-      Solution_Name: TestCorectAppWithCI.sln
-      Wpf_Project_Path: TestCorectAppWithCI/TestCorectAppWithCI.csproj                         
-      Wap_Project_Directory: TestCorectAppWithCIWAP    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Name: TestCorectAppWithCIWAP.wapproj                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-      # workaround because some of this are all commands and are deprecated
-      # in future will need to use : Envornment Files
-
     steps:
-    # For whatever reason this step must be added
-    # because of deprecation of a specific command 
-    # link: https://github.com/actions/toolkit/issues/641      
-
     - name: Checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
-    # Install the .NET Core workload
+    # Install the .NET Core workload (IMPORTANRT: Use 1.7.2 or later)
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v1.7.2
       with:
-        dotnet-version: '3.1.302'
+        # Make sure you're using the verion that matches or newer than what your project needs
+        dotnet-version: '3.1.302' 
 
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    # Add  MSBuild to the PATH: (IMPORTANT be 1.0.2 or later)
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.1
+      uses: microsoft/setup-msbuild@v1.0.2
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
       run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration
       env:
-        Configuration: ${{ matrix.configuration }}
+        Solution_Path: TestCorectAppWithCI.sln
+        Configuration: ${{ matrix.configuration }}  
 
-    # Decode the base 64 encoded pfx and save the Signing_Certificate
+    # Decode the base 64 encoded pfx and save the file using the SigningCertificateFileName value for the file name
     - name: Decode the pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
+        $certificatePath = Join-Path -Path $env:WAP_Project_Directory -ChildPath $env:SigningCertificateFileName
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+      env:
+        SigningCertificateFileName: GitHubActionsWorkflow.pfx
+        WAP_Project_Directory: TestCorectAppWithCIWAP
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      run: msbuild $env:WAP_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=$env:SigningCertificateFileName /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
       env:
+        WAP_Project_Path: TestCorectAppWithCIWAP/TestCorectAppWithCIWAP.wapproj 
+        Configuration: ${{ matrix.configuration }}
+        Appx_Package_Build_Mode: StoreUpload
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86|x64
-        Appx_Package_Build_Mode: StoreUpload
-        Configuration: ${{ matrix.configuration }}
+        SigningCertificateFileName: GitHubActionsWorkflow.pfx
 
     # Remove the pfx
     - name: Remove the pfx
-      run: Remove-Item -path $env:Wap_Project_Directory\$env:Signing_Certificate
+      run: Remove-Item -path $env:WAP_Project_Directory\$env:SigningCertificateFileName
+      env:
+        WAP_Project_Directory: TestCorectAppWithCIWAP
+        SigningCertificateFileName: GitHubActionsWorkflow.pfx
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\AppPackages
+        path: ${{ env.WAP_Project_Directory }}\AppPackages
+      env:
+        WAP_Project_Directory: TestCorectAppWithCIWAP
