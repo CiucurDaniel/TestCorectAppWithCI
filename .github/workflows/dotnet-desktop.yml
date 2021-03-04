@@ -25,8 +25,8 @@ jobs:
       #SigningCertificate: GitHubActionsDemo.pfx
       Solution_Name: TestCorectAppWithCI.sln
       Wpf_Project_Path: TestCorectAppWithCI/TestCorectAppWithCI.csproj                         
-      Wap_Project_Directory: TestCorectAppWithCIWAP.Package    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Name: TestCorectAppWithCIWAP.Package.wapproj                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      Wap_Project_Directory: TestCorectAppWithCIWAP    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      Wap_Project_Name: TestCorectAppWithCIWAP.wapproj                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       # workaround because some of this are all commands and are deprecated
       # in future will need to use : Envornment Files
