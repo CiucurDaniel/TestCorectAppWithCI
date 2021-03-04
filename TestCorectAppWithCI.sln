@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCorectAppWithCI", "TestCorectAppWithCI.csproj", "{9AAFE4DA-770C-4426-A3F8-A48A310790E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCorectAppWithCI", "TestCorectAppWithCI.csproj", "{9AAFE4DA-770C-4426-A3F8-A48A310790E4}"
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "TestCorectAppWithCIWAP", "..\TestCorectAppWithCIWAP\TestCorectAppWithCIWAP.wapproj", "{9476E33B-DB11-4B64-B45D-8AD3D2C9C50C}"
 EndProject
