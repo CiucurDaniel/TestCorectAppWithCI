@@ -21,7 +21,8 @@ jobs:
     runs-on: windows-latest  
 
     env:
-      Solution_Name: TestCorectAppWithCI.sln                         
+      Solution_Name: TestCorectAppWithCI.sln
+      Wpf_Project_Path: TestCorectAppWithCI\TestCorectAppWithCI.csproj                         
       Wap_Project_Directory: TestCorectAppWithCIWAP.Package    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
       Wap_Project_Path: TestCorectAppWithCIWAP.Package.wapproj.                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -43,6 +44,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
+
+    -name: List current directory
+        run: dir
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
