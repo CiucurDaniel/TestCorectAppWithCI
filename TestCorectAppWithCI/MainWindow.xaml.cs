@@ -20,6 +20,8 @@ namespace TestCorectAppWithCI
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        // empty commit
         public MainWindow()
         {
             InitializeComponent();
